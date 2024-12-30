@@ -66,10 +66,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useLayoutStore } from '@/stores/layout'
-
 const route = useRoute()
 const router = useRouter()
 const layoutStore = useLayoutStore()
@@ -81,6 +77,10 @@ const routes = computed(() => {
 
 // 当前路径
 const currentPath = computed(() => route.path)
+
+// Helper functions for template
+const getIcon = (route) => route.meta?.icon || 'el-icon-menu'
+const getTitle = (route) => route.meta?.title || route.name
 </script>
 
 <style scoped>

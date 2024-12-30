@@ -1,5 +1,3 @@
-import { ElMessage } from 'element-plus'
-
 /**
  * 消息提示组合式函数
  * @returns {Object} 消息提示方法集合

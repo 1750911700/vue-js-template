@@ -1,7 +1,5 @@
 import axios from 'axios'
 import { REQUEST_CONFIG } from './config'
-import { useUserStore } from '@/stores/user'
-import { useMessage } from '@/composables/common/useMessage'
 import { createRetryInterceptor } from './retry'
 import { createCacheInterceptor } from './cache'
 import { createCancelTokenInterceptor } from './cancel'

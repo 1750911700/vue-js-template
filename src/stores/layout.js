@@ -1,6 +1,3 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-
 // 布局主题配置
 export const layoutTheme = {
   // 侧边栏布局主题

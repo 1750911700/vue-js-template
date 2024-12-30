@@ -1,7 +1,5 @@
-import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { createPinia } from 'pinia'
 
 // 导入基础样式
 import './styles/element/index.scss'

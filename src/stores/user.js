@@ -1,11 +1,3 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { userApi } from '@/api/modules/user'
-
-/**
- * 用户状态管理
- * 使用 Composition API 风格
- */
 export const useUserStore = defineStore('user', () => {
   // 状态
   const token = ref(localStorage.getItem('token') || '')

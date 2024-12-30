@@ -1,5 +1,3 @@
-import { useMessage } from '@/composables/common/useMessage'
-
 /**
  * 错误码映射表
  */

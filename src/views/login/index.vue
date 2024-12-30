@@ -51,10 +51,8 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/stores/user'
-import { useMessage } from '@/composables/common/useMessage'
-
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const { showError, showSuccess } = useMessage()
 

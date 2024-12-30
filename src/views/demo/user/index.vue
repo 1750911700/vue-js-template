@@ -105,8 +105,13 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+const tableData = ref([])
+const formData = reactive({
+  username: '',
+  email: '',
+  role: '',
+  status: 'active'
+})
 
 // 搜索表单
 const searchForm = reactive({
@@ -144,12 +149,6 @@ const total = ref(100)
 const dialogVisible = ref(false)
 const dialogType = ref('add')
 const formRef = ref(null)
-const form = reactive({
-  username: '',
-  email: '',
-  role: '',
-  status: 'active'
-})
 
 // 表单校验规则
 const rules = {
@@ -185,24 +184,24 @@ const handleReset = () => {
 // 新增用户
 const handleAdd = () => {
   dialogType.value = 'add'
-  form.username = ''
-  form.email = ''
-  form.role = ''
-  form.status = 'active'
+  formData.username = ''
+  formData.email = ''
+  formData.role = ''
+  formData.status = 'active'
   dialogVisible.value = true
 }
 
 // 编辑用户
 const handleEdit = (row) => {
   dialogType.value = 'edit'
-  form.username = row.username
-  form.email = row.email
-  form.role = row.role === '管理员' ? 'admin' : 'user'
-  form.status = row.status
+  formData.username = row.username
+  formData.email = row.email
+  formData.role = row.role === '管理员' ? 'admin' : 'user'
+  formData.status = row.status
   dialogVisible.value = true
 }
 
-// 删���用户
+// 删除用户
 const handleDelete = (row) => {
   ElMessageBox.confirm(
     `确认删除用户 ${row.username}？`,

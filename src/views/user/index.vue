@@ -23,11 +23,9 @@
 
 <script setup>
 import { userApi } from '@/api/modules/user'
-import { useMessage } from '@/composables/common/useMessage'
-import { useRequest } from '@/composables/common/useRequest'
 import { handleError } from '@/utils/request/error'
 
-const { showSuccess } = useMessage()
+const { showError, showSuccess } = useMessage()
 
 // 使用请求组合函数
 const { 

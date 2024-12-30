@@ -1,8 +1,33 @@
 <template>
   <div class="sidebar-layout">
-    <!-- 侧边栏 -->
+    <!-- 移动端抽屉模式 -->
+    <el-drawer
+      v-model="showDrawer"
+      direction="ltr"
+      size="200px"
+      :with-header="false"
+      class="sidebar-drawer"
+    >
+      <nav class="menu">
+        <router-link 
+          v-for="route in routes" 
+          :key="route.path"
+          :to="route.path"
+          class="menu-item"
+          :class="{ active: currentPath === route.path }"
+          @click="closeDrawer"
+        >
+          <i :class="getIcon(route)"></i>
+          <span>{{ getTitle(route) }}</span>
+        </router-link>
+      </nav>
+    </el-drawer>
+
+    <!-- PC端侧边栏 -->
     <aside 
+      v-show="!isMobile"
       class="sidebar"
+      :class="{ collapsed: layoutStore.sidebar.collapsed }"
       :style="{
         width: layoutStore.sidebarWidth,
         backgroundColor: layoutStore.theme.sidebar.backgroundColor
@@ -45,12 +70,22 @@
           borderColor: layoutStore.theme.header.borderColor
         }"
       >
+        <!-- 移动端菜单按钮 -->
+        <div v-if="isMobile" class="menu-btn" @click="showDrawer = true">
+          <i class="el-icon-menu"></i>
+        </div>
+
+        <!-- PC端折叠按钮 -->
+        <div v-else class="collapse-btn" @click="layoutStore.toggleSidebar">
+          <i :class="layoutStore.sidebar.collapsed ? 'el-icon-s-unfold' : 'el-icon-s-fold'"></i>
+        </div>
+
         <!-- 用户信息 -->
         <div class="user-info">
           <el-dropdown>
             <span class="user-name">
               <el-avatar size="small" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
-              <span>Admin</span>
+              <span class="hide-on-mobile">Admin</span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -62,7 +97,7 @@
         </div>
       </header>
       
-      <!-- 内��区 -->
+      <!-- 内容区 -->
       <main 
         class="main-content"
         :style="{
@@ -77,13 +112,24 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useLayoutStore } from '@/stores/layout'
-
 const route = useRoute()
 const router = useRouter()
 const layoutStore = useLayoutStore()
+
+// 响应式断点
+const breakpoints = useBreakpoints({
+  mobile: 768,
+  tablet: 992,
+  desktop: 1200,
+})
+
+const isMobile = computed(() => breakpoints.smaller('tablet'))
+
+// 移动端抽屉状态
+const showDrawer = ref(false)
+const closeDrawer = () => {
+  showDrawer.value = false
+}
 
 // 获取路由列表
 const routes = computed(() => {
@@ -96,9 +142,41 @@ const currentPath = computed(() => route.path)
 // Helper functions for template
 const getIcon = (route) => route.meta?.icon || 'el-icon-menu'
 const getTitle = (route) => route.meta?.title || route.name
+
+// 监听移动端状态变化
+watch(isMobile, (newValue) => {
+  if (newValue) {
+    // 在移动端时自动折叠侧边栏
+    layoutStore.sidebar.collapsed = true
+  }
+})
+
+// 组件挂载时的处理
+onMounted(() => {
+  // 初始化移动端状态
+  if (isMobile.value) {
+    layoutStore.sidebar.collapsed = true
+  }
+  
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize)
+})
+
+// 组件卸载时的清理
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+// 处理窗口大小变化
+const handleResize = () => {
+  if (isMobile.value) {
+    showDrawer.value = false
+    layoutStore.sidebar.collapsed = true
+  }
+}
 </script>
 
-<style>
+<style scoped>
 .sidebar-layout {
   display: flex;
   height: 100vh;
@@ -107,8 +185,13 @@ const getTitle = (route) => route.meta?.title || route.name
 .sidebar {
   display: flex;
   flex-direction: column;
-  transition: width 0.3s;
+  transition: all 0.3s;
   overflow: hidden;
+  z-index: 1000;
+}
+
+.sidebar.collapsed {
+  width: 64px !important;
 }
 
 .logo {
@@ -117,6 +200,7 @@ const getTitle = (route) => route.meta?.title || route.name
   align-items: center;
   padding: 0 16px;
   color: #fff;
+  transition: all 0.3s;
 }
 
 .logo img {
@@ -128,6 +212,7 @@ const getTitle = (route) => route.meta?.title || route.name
 .menu {
   flex: 1;
   padding: 16px 0;
+  overflow-y: auto;
 }
 
 .menu-item {
@@ -135,11 +220,17 @@ const getTitle = (route) => route.meta?.title || route.name
   align-items: center;
   height: 50px;
   padding: 0 16px;
+  color: var(--el-color-white);
   text-decoration: none;
+  transition: all 0.3s;
+}
+
+.menu-item:hover {
+  background-color: rgb(255 255 255 / 10%);
 }
 
 .menu-item.active {
-  background-color: rgb(255 255 255 / 10%);
+  background-color: var(--el-color-primary);
 }
 
 .menu-item i {
@@ -154,6 +245,11 @@ const getTitle = (route) => route.meta?.title || route.name
   justify-content: center;
   color: #fff;
   cursor: pointer;
+  transition: all 0.3s;
+}
+
+.collapse-btn:hover {
+  background-color: rgb(255 255 255 / 10%);
 }
 
 .main-container {
@@ -166,9 +262,14 @@ const getTitle = (route) => route.meta?.title || route.name
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 0 20px;
   border-bottom: 1px solid;
+}
+
+.menu-btn {
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .user-info {
@@ -184,5 +285,26 @@ const getTitle = (route) => route.meta?.title || route.name
 .main-content {
   flex: 1;
   overflow: auto;
+}
+
+/* 响应式样式 */
+@media screen and (width <= 768px) {
+  .hide-on-mobile {
+    display: none;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .header {
+    padding: 0 12px;
+  }
+}
+
+/* 抽屉样式 */
+.sidebar-drawer :deep(.el-drawer__body) {
+  padding: 0;
+  background-color: var(--el-color-primary-dark);
 }
 </style> 
