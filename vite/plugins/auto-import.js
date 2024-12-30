@@ -9,12 +9,39 @@ export function createAutoImport() {
       imports: ['vue', 'vue-router', 'pinia'],
       // 自动导入 Element Plus 相关函数
       resolvers: [ElementPlusResolver()],
-      dts: 'auto-imports.d.ts'
+      dirs: [
+        './src/composables/common/**', // 导入 composables/common 目录下所有文件的方法
+      ],
+      vueTemplate: true,
+      dts: 'auto-imports.d.ts',
+      eslintrc: {
+        enabled: true,
+        filepath: './.eslintrc-auto-import.json',
+        globalsPropValue: true
+      }
     }),
     Components({
-      // 自动导入 Element Plus 组件
-      resolvers: [ElementPlusResolver()],
-      dts: 'components.d.ts'
+       // 自动导入的目录
+       dirs: ['src/components'],
+       // 组件的有效文件扩展名
+       extensions: ['vue','jsx'],
+       // 配置文件生成位置
+       dts: 'components.d.ts',
+       // 组件名称的生成规则
+       directoryAsNamespace: true,
+       // 自动导入 Element Plus 组件
+       resolvers: [ElementPlusResolver()],
+       // 自定义组件的解析规则
+       resolveIdsFromFile: (file) => {
+         const filename = file.split('/').pop()
+         // 如果是 index.vue，使用父文件夹名作为组件名
+         if (filename === 'index.vue') {
+           const folderName = file.split('/').slice(-2, -1)[0]
+           return [`${folderName}`]
+         }
+         // 其他 .vue 文件使用文件名作为组件名（去掉.vue后缀）
+         return [filename.replace(/\.vue$/, '')]
+       }
     })
   ]
 }
